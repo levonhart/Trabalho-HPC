@@ -4,11 +4,14 @@
 #include <stdlib.h>
 #include <math.h>
 
-#define N 3
+#include "ivp.h"
 
-typedef double (ivp_function) (double, double*); // function(t, state)
-typedef double (* ivp_function_ptr) (double, double*); // *function(t, state)
+#define N 2
+
+
 ivp_function f01, f02, f03;
+
+const ivp_function_ptr inst[4] = {f01, f02, f03, f02};
 
 int main(int argc, char *argv[]){
 
@@ -22,23 +25,35 @@ int main(int argc, char *argv[]){
 		return EXIT_FAILURE;
 	}
 
+	unsigned nump = N;
 	int ntasks, rank;
 
 	MPI_Init(&argc, &argv);
 	MPI_Comm_size(MPI_COMM_WORLD, &ntasks);
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-
+	if (rank == 0) {
+		double c[] = { -2., 1., 1.};
+		unsigned count[] = {2, 2};
+		unsigned nconst[] = {0, 1, 1, 1};
+	}
 
 	MPI_Finalize();
 
 	return EXIT_SUCCESS;
 }
+// P1
+double f01 (double t, double * state, size_t n, double c[]) {
+	return sin(t) * state[0];
+}
+double f02 (double t, double * state, size_t n, double c[]) {
+	return c[0] * t * state[1];
+}
 
-double f01 (double t, double * state) {
-
+//P2
+double f03 (double t, double * state, size_t n, double c[]) {
+	return c[0] * exp(t);
 }
-double f02 (double t, double * state) {
-}
-double f03 (double t, double * state) {
-}
+/* double f04 (double t, double * state, size_t n, double param[]) { */
+/*     return t * state[1]; */
+/* } */
