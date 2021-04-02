@@ -6,7 +6,8 @@
 
 #include "ivp.h"
 
-#define N 2
+#define N 4
+#define NTASK 2
 
 
 ivp_function f01, f02, f03;
@@ -32,11 +33,16 @@ int main(int argc, char *argv[]){
 	MPI_Comm_size(MPI_COMM_WORLD, &ntasks);
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
+	unsigned count[] = {2, 2};
+
 	if (rank == 0) {
 		double c[] = { -2., 1., 1.};
-		unsigned count[] = {2, 2};
-		unsigned nconst[] = {0, 1, 1, 1};
+		int nconst[] = {0, 1, 1, 1};
+		runge_kutta(t, inst, count, N, c, nconst, NTASK);
+	} else {
+		runge_kutta(t, inst, count, N, NULL, NULL, NTASK);
 	}
+
 
 	MPI_Finalize();
 
